@@ -1,0 +1,69 @@
+\documentclass[]{article}
+
+\usepackage[left=2.00cm, right=2.00cm, top=2.00cm, bottom=2.00cm]{geometry}
+\usepackage[spanish,es-noshorthands]{babel}
+\usepackage[utf8]{inputenc} % para tildes y ñ
+\usepackage{graphicx} % para las figuras
+\usepackage{xcolor}
+\usepackage{listings} % para el código fuente en c++
+
+\lstdefinestyle{customc}{
+  belowcaptionskip=1\baselineskip,
+  breaklines=true,
+  frame=single,
+  xleftmargin=\parindent,
+  language=C++,
+  showstringspaces=false,
+  basicstyle=\footnotesize\ttfamily,
+  keywordstyle=\bfseries\color{green!40!black},
+  commentstyle=\itshape\color{gray!40!gray},
+  identifierstyle=\color{black},
+  stringstyle=\color{orange},
+}
+\lstset{style=customc}
+
+
+%opening
+\title{Práctica 2. Programación dinámica}
+\author{\input{../autor}}
+
+
+\begin{document}
+
+\maketitle
+
+%\begin{abstract}
+%\end{abstract}
+
+% Ejemplo de ecuación a trozos
+%
+%$f(i,j)=\left\{ 
+%  \begin{array}{lcr}
+%      i + j & si & i < j \\ % caso 1
+%      i + 7 & si & i = 1 \\ % caso 2
+%      2 & si & i \geq j     % caso 3
+%  \end{array}
+%\right.$
+
+\begin{enumerate}
+\item Formalice a continuación y describa la función que asigna un determinado valor a cada uno de los tipos de defensas.
+
+\input{e1}
+
+\item Describa la estructura o estructuras necesarias para representar la tabla de subproblemas resueltos.
+
+\input{e2}
+
+\item En base a los dos ejercicios anteriores, diseñe un algoritmo que determine el máximo beneficio posible a obtener dada una combinación de defensas y \emph{ases} disponibles. Muestre a continuación el código relevante.
+
+\input{e3}
+
+\item Diseñe un algoritmo que recupere la combinación óptima de defensas a partir del contenido de la tabla de subproblemas resueltos. Muestre a continuación el código relevante.
+
+\input{e4}
+
+\end{enumerate}
+
+Todo el material incluido en esta memoria y en los ficheros asociados es de mi autoría o ha sido facilitado por los profesores de la asignatura. Haciendo entrega de este documento confirmo que he leído la normativa de la asignatura, incluido el punto que respecta al uso de material no original.
+
+\end{document}

@@ -1,0 +1,13 @@
+\begin{lstlisting}
+// sustituya este codigo por su respuesta
+void placeDefenses(...) {
+
+    List<Defense*>::iterator currentDefense = defenses.begin();
+    while(currentDefense != defenses.end() && maxAttemps > 0) {
+
+        (*currentDefense)->position.x = ((int)(_RAND2(nCellsWidth))) * cellWidth + cellWidth * 0.5f;
+        ...
+        ++currentDefense;
+    }
+}
+\end{lstlisting}

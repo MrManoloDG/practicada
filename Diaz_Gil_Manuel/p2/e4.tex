@@ -1,0 +1,15 @@
+\begin{lstlisting}
+// sustituya este codigo por su respuesta
+void selectDefenses(...) {
+
+    unsigned int cost = 0;
+    std::list<Defense*>::iterator it = defenses.begin();
+    while(it != defenses.end()) {
+        if(cost + (*it)->cost <= ases) {
+            selectedIDs.push_back((*it)->id);
+            cost += (*it)->cost;
+        }
+        ++it;
+    }
+}
+\end{lstlisting}
