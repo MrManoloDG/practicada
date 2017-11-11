@@ -9,6 +9,7 @@
 #include "../simulador/Asedio.h"
 #include "../simulador/Defense.h"
 #include "math.h"
+#include <queue>
 
 #ifdef PRINT_DEFENSE_STRATEGY
 #include "ppm.h"
@@ -20,6 +21,17 @@ RAND_TYPE SimpleRandomGenerator::a;
 
 using namespace Asedio;
 
+struct celda
+{
+    int row,col;
+    float valor;
+    celda():row(0),col(0),valor(0){}
+    celda(int x,int y,float v):row(x),col(y),valor(v){}
+    
+
+};
+bool operator < (const celda& a,const celda& b){return a.valor<b.valor;}
+
 bool factible(int row,int col,int nCellsWidth, int nCellsHeight, float mapWidth,float mapHeight,std::list<Object*> obstacles,std::list<Defense*> defenses,std::list<Defense*>::iterator current){
 	float cellWidth = mapWidth / nCellsWidth;
 	float cellHeight = mapHeight / nCellsHeight; 
@@ -28,14 +40,17 @@ bool factible(int row,int col,int nCellsWidth, int nCellsHeight, float mapWidth,
 	y=col*cellHeight+cellHeight*0.5f;
 	std::list<Object*>::iterator obsts=obstacles.begin();
 	while(obsts != obstacles.end()){
-		distanciapuntos=sqrt(abs(x-obsts->posicion.x)**2+abs(y-obsts->posicion.y)**2);
-		if((current->radio+obsts->radio)>distanciapuntos)return false;
+		distanciapuntos=sqrt(abs(x-(*obsts)->position.x)*abs(x-(*obsts)->position.x) +abs(y-(*obsts)->position.y)*abs(y-(*obsts)->position.y));
+		if(((*current)->radio+(*obsts)->radio)>distanciapuntos)return false;
 	}
+    /*
 	std::list<Object*>::iterator defs=defenses.begin();
-	while(defs != defenses.end()){
-		distanciapuntos=sqrt(abs(x-defs->posicion.x)**2+abs(y-defs->posicion.y)**2);
-		if((current->radio+defs->radio)>distanciapuntos)return false;
+	
+    while(defs != defenses.end()){
+		distanciapuntos=sqrt(abs(x-(*defs)->position.x)*abs(x-(*defs)->position.x)+abs(y-(*defs)->position.y)*abs(y-(*defs)->position.y));
+		if(((*current)->radio+(*defs)->radio)>distanciapuntos)return false;
 	}
+    */
 	return true;
 
 }
@@ -44,32 +59,7 @@ float cellValue(int row, int col, bool** freeCells, int nCellsWidth, int nCellsH
 	, float mapWidth, float mapHeight, List<Object*> obstacles, List<Defense*> defenses) {
 	return 0; // implemente aqui la función que asigna valores a las celdas
 }
-void selecionarCeldas(int &row,int &col,const float &vCelda,const bool &bCelda, int nCellsWidth,int nCellsHeight){
-	float mejorvalor=vCelda[0][0];
-	for (int i = 0; i < nCellsWidth ; ++i)
-	{
-		for (int j = 0; j < nCellsHeight; ++j)
-		{
-			if((vCelda[i][j] > mejorvalor)&& (!bCelda[i][j])){
-				row=i;
-				col=j;
-				mejorvalor=vCelda[i][j];
-			}
-		}
-	}
-}
 
-bool ocupado(const bool &bCelda,int nCellsWidth,int nCellsHeight){
-	for (int i = 0; i < nCellsWidth; ++i)
-	{
-		for (int j = 0; j < nCellsHeight; ++j)
-		{
-			if(!bCelda[i][j])return false;
-			
-		}
-	}
-	return true;
-}
 
 void DEF_LIB_EXPORTED placeDefenses(bool** freeCells, int nCellsWidth, int nCellsHeight, float mapWidth, float mapHeight
               , std::list<Object*> obstacles, std::list<Defense*> defenses) {
@@ -78,60 +68,57 @@ void DEF_LIB_EXPORTED placeDefenses(bool** freeCells, int nCellsWidth, int nCell
     float cellHeight = mapHeight / nCellsHeight; 
 
  
-    float vCelda[nCellsWidth][nCellsHeight];
-    bool bCelda[nCellsWidth][nCellsHeight];
+   // float vCelda=new float [nCellsWidth][nCellsHeight];
+
     bool colocado=false;
-    int x=0,y=0;
+
+    celda cactual;
+    std::priority_queue<celda> mceldas;
     List<Defense*>::iterator currentDefense = defenses.begin(); //Primera defensa (Generador)
     for (int i = 0; i < nCellsWidth; ++i)
     {
+        
     	for (int j = 0; j < nCellsHeight; ++j)
     	{
-    		vCelda[i][j]=cellValue(i,j,freeCells,nCellsWidth,nCellsHeight,mapWidth,mapHeight,obstacles,defenses);	
-    		bCelda[i][j]=false;
+    		mceldas.push(celda(i,j,cellValue(i,j,freeCells,nCellsWidth,nCellsHeight,mapWidth,mapHeight,obstacles,defenses)));	
+    		
     	}
     }
 
-    while(ocupado(bCelda,nCellsWidth,nCellsHeight) || !colocado){
-    	selecionarCeldas(x,y,vCelda,bCelda,nCellsWidth,nCellsHeight);
-    	bCelda[x][y]=true;
-    	if(factible(x,y,nCellsWidth,nCellsHeight,mapWidth,mapHeight,obstacles,defenses,currentDefense)){
-    		(*currentDefense)->position.x = x * cellWidth + cellWidth * 0.5f;
-        	(*currentDefense)->position.y = y * cellHeight + cellHeight * 0.5f;
+    while(!mceldas.empty() && !colocado){
+    	cactual=mceldas.top();
+        mceldas.pop();
+    	if(factible(cactual.row,cactual.col,nCellsWidth,nCellsHeight,mapWidth,mapHeight,obstacles,defenses,currentDefense)){
+    		(*currentDefense)->position.x = (cactual.row * cellWidth) + cellWidth * 0.5f;
+        	(*currentDefense)->position.y = (cactual.col * cellHeight) + cellHeight * 0.5f;
         	(*currentDefense)->position.z = 0; 
+            colocado=true;
     	}
+
     }
     ++currentDefense;
+    std::priority_queue<celda> mceldas2;
     for (int i = 0; i < nCellsWidth; ++i)
     {
     	for (int j = 0; j < nCellsHeight; ++j)
     	{
-    		vCelda[i][j]=cellValue(i,j,freeCells,nCellsWidth,nCellsHeight,mapWidth,mapHeight,obstacles,defenses);	
-    		bCelda[i][j]=false;
+    		mceldas2.push(celda(i,j,cellValue(i,j,freeCells,nCellsWidth,nCellsHeight,mapWidth,mapHeight,obstacles,defenses)));
     	}
     }
 
-    bool auxbCelda=new bool(bCelda);
     while(currentDefense != defenses.end()) {
-    	x=0;
-    	y=0;
-    	bCelda=new bool(auxbCelda);
     	colocado=false;
-    	while(ocupado(bCelda,nCellsWidth,nCellsHeight) || !colocado){
-    		selecionarCeldas(x,y,vCelda,bCelda,nCellsWidth,nCellsHeight);
-    		bCelda[x][y]=true;
-    		if(factible(x,y,nCellsWidth,nCellsHeight,mapWidth,mapHeight,obstacles,defenses,currentDefense)){
-    			(*currentDefense)->position.x = x * cellWidth + cellWidth * 0.5f;
-        		(*currentDefense)->position.y = y * cellHeight + cellHeight * 0.5f;
+    	while(!mceldas2.empty() && !colocado){
+    		cactual=mceldas2.top();
+            mceldas2.pop();
+    		if(factible(cactual.row,cactual.col,nCellsWidth,nCellsHeight,mapWidth,mapHeight,obstacles,defenses,currentDefense)){
+    			(*currentDefense)->position.x = (cactual.row * cellWidth) + cellWidth * 0.5f;
+        		(*currentDefense)->position.y = (cactual.col * cellHeight) + cellHeight * 0.5f;
         		(*currentDefense)->position.z = 0; 
     		}
     	}
-    	/*
-        (*currentDefense)->position.x = ((int)(_RAND2(nCellsWidth))) * cellWidth + cellWidth * 0.5f;
-        (*currentDefense)->position.y = ((int)(_RAND2(nCellsHeight))) * cellHeight + cellHeight * 0.5f;
-        (*currentDefense)->position.z = 0; 
         ++currentDefense;
-        */
+    	
     }
 
 #ifdef PRINT_DEFENSE_STRATEGY
