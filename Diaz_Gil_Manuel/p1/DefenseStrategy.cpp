@@ -42,15 +42,17 @@ bool factible(int row,int col,int nCellsWidth, int nCellsHeight, float mapWidth,
 	while(obsts != obstacles.end()){
 		distanciapuntos=sqrt(abs(x-(*obsts)->position.x)*abs(x-(*obsts)->position.x) +abs(y-(*obsts)->position.y)*abs(y-(*obsts)->position.y));
 		if(((*current)->radio+(*obsts)->radio)>distanciapuntos)return false;
+        ++obsts;
 	}
-    /*
-	std::list<Object*>::iterator defs=defenses.begin();
+    
+	std::list<Defense*>::iterator defs=defenses.begin();
 	
     while(defs != defenses.end()){
 		distanciapuntos=sqrt(abs(x-(*defs)->position.x)*abs(x-(*defs)->position.x)+abs(y-(*defs)->position.y)*abs(y-(*defs)->position.y));
 		if(((*current)->radio+(*defs)->radio)>distanciapuntos)return false;
+        ++defs;
 	}
-    */
+    
 	return true;
 
 }
@@ -97,6 +99,7 @@ void DEF_LIB_EXPORTED placeDefenses(bool** freeCells, int nCellsWidth, int nCell
 
     }
     ++currentDefense;
+    /*
     std::priority_queue<celda> mceldas2;
     for (int i = 0; i < nCellsWidth; ++i)
     {
@@ -105,16 +108,19 @@ void DEF_LIB_EXPORTED placeDefenses(bool** freeCells, int nCellsWidth, int nCell
     		mceldas2.push(celda(i,j,cellValue(i,j,freeCells,nCellsWidth,nCellsHeight,mapWidth,mapHeight,obstacles,defenses)));
     	}
     }
+    */
 
     while(currentDefense != defenses.end()) {
     	colocado=false;
-    	while(!mceldas2.empty() && !colocado){
-    		cactual=mceldas2.top();
-            mceldas2.pop();
+    	while(!mceldas.empty() && !colocado){
+    		cactual=mceldas.top();
+            mceldas.pop();
     		if(factible(cactual.row,cactual.col,nCellsWidth,nCellsHeight,mapWidth,mapHeight,obstacles,defenses,currentDefense)){
     			(*currentDefense)->position.x = (cactual.row * cellWidth) + cellWidth * 0.5f;
         		(*currentDefense)->position.y = (cactual.col * cellHeight) + cellHeight * 0.5f;
         		(*currentDefense)->position.z = 0; 
+                colocado=true;
+                std::cout<<"Defensa colocada "<<std::endl;
     		}
     	}
         ++currentDefense;
