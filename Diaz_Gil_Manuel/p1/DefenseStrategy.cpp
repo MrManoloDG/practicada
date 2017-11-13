@@ -52,14 +52,74 @@ bool factible(int row,int col,int nCellsWidth, int nCellsHeight, float mapWidth,
 		if(((*current)->radio+(*defs)->radio)>distanciapuntos)return false;
         ++defs;
 	}
+
+    if((x-(*current)->radio)<0 || (x+(*current)->radio)>mapWidth){
+        return false;
+    }
+    if((y-(*current)->radio)<0 || (y+(*current)->radio)>mapHeight){
+        return false;
+    }
     
 	return true;
 
 }
 
 float cellValue(int row, int col, bool** freeCells, int nCellsWidth, int nCellsHeight
-	, float mapWidth, float mapHeight, List<Object*> obstacles, List<Defense*> defenses) {
-	return 0; // implemente aqui la función que asigna valores a las celdas
+	, float mapWidth, float mapHeight, List<Object*> obstacles, List<Defense*> defenses){
+	 // implemente aqui la función que asigna valores a las celdas
+    float cellWidth = mapWidth / nCellsWidth;
+    float cellHeight = mapHeight / nCellsHeight; 
+    float x,y,valor=0,distanciapuntos=0;
+    x=row*cellWidth+cellWidth*0.5f;
+    y=col*cellHeight+cellHeight*0.5f;
+    for (int i = 0; i <= (nCellsWidth/2) ; ++i){
+        if(row==i || row==(i-nCellsWidth+1))valor=valor+i*10;    
+    }
+
+    for (int i = 0; i < (nCellsHeight/2); ++i){
+        if(col==i || col==(i-nCellsHeight))valor=valor+i*10;  
+    }
+
+    std::list<Object*>::iterator obsts=obstacles.begin();
+    while(obsts != obstacles.end()){
+        distanciapuntos=sqrt(abs(x-(*obsts)->position.x)*abs(x-(*obsts)->position.x) +abs(y-(*obsts)->position.y)*abs(y-(*obsts)->position.y));
+        valor=valor+(((mapWidth+mapHeight)/2)-distanciapuntos);
+        ++obsts;
+    }
+
+
+    return valor;
+
+}
+
+float cellValue2(int row, int col, bool** freeCells, int nCellsWidth, int nCellsHeight
+    , float mapWidth, float mapHeight, List<Object*> obstacles, List<Defense*> defenses){
+     // implemente aqui la función que asigna valores a las celdas
+    float cellWidth = mapWidth / nCellsWidth;
+    float cellHeight = mapHeight / nCellsHeight; 
+    float x,y,valor=0,distanciapuntos=0;
+    x=row*cellWidth+cellWidth*0.5f;
+    y=col*cellHeight+cellHeight*0.5f;
+    for (int i = 0; i <= (nCellsWidth/2) ; ++i){
+        if(row==i || row==(i-nCellsWidth+1))valor=valor+i*10;    
+    }
+
+    for (int i = 0; i < (nCellsHeight/2); ++i){
+        if(col==i || col==(i-nCellsHeight))valor=valor+i*10;  
+    }
+
+    std::list<Object*>::iterator obsts=obstacles.begin();
+    while(obsts != obstacles.end()){
+        distanciapuntos=sqrt(abs(x-(*obsts)->position.x)*abs(x-(*obsts)->position.x) +abs(y-(*obsts)->position.y)*abs(y-(*obsts)->position.y));
+        valor=valor+(((mapWidth+mapHeight)/2)-distanciapuntos);
+        ++obsts;
+    }
+
+    std::list<Defense*>::iterator defs=defenses.begin();
+    distanciapuntos=sqrt(abs(x-(*defs)->position.x)*abs(x-(*defs)->position.x)+abs(y-(*defs)->position.y)*abs(y-(*defs)->position.y));
+    valor=valor+(((mapWidth+mapHeight)/2)-distanciapuntos);
+    return valor;
+
 }
 
 
@@ -99,28 +159,27 @@ void DEF_LIB_EXPORTED placeDefenses(bool** freeCells, int nCellsWidth, int nCell
 
     }
     ++currentDefense;
-    /*
+    
     std::priority_queue<celda> mceldas2;
     for (int i = 0; i < nCellsWidth; ++i)
     {
     	for (int j = 0; j < nCellsHeight; ++j)
     	{
-    		mceldas2.push(celda(i,j,cellValue(i,j,freeCells,nCellsWidth,nCellsHeight,mapWidth,mapHeight,obstacles,defenses)));
+    		mceldas2.push(celda(i,j,cellValue2(i,j,freeCells,nCellsWidth,nCellsHeight,mapWidth,mapHeight,obstacles,defenses)));
     	}
     }
-    */
+    
 
     while(currentDefense != defenses.end()) {
     	colocado=false;
-    	while(!mceldas.empty() && !colocado){
-    		cactual=mceldas.top();
-            mceldas.pop();
+    	while(!mceldas2.empty() && !colocado){
+    		cactual=mceldas2.top();
+            mceldas2.pop();
     		if(factible(cactual.row,cactual.col,nCellsWidth,nCellsHeight,mapWidth,mapHeight,obstacles,defenses,currentDefense)){
     			(*currentDefense)->position.x = (cactual.row * cellWidth) + cellWidth * 0.5f;
         		(*currentDefense)->position.y = (cactual.col * cellHeight) + cellHeight * 0.5f;
         		(*currentDefense)->position.z = 0; 
                 colocado=true;
-                std::cout<<"Defensa colocada "<<std::endl;
     		}
     	}
         ++currentDefense;
