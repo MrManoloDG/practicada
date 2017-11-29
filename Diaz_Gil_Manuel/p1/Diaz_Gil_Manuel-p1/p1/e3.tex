@@ -1,0 +1,41 @@
+\begin{lstlisting}
+//struct celda para almacenar en la cola de prioridad
+     struct celda
+    {
+    	int row,col;
+    	float valor;
+    	celda():row(0),col(0),valor(0){}
+    	celda(int x,int y,float v):row(x),col(y),valor(v){}
+    
+
+    };
+//Codigo del algoritmo voraz
+    float cellWidth = mapWidth / nCellsWidth;
+    float cellHeight = mapHeight / nCellsHeight;
+    bool colocado=false;
+
+    celda cactual;
+    std::priority_queue<celda> mceldas;
+    List<Defense*>::iterator currentDefense = defenses.begin(); //Primera defensa (Generador)
+    for (int i = 0; i < nCellsWidth; ++i)
+    {
+        
+    	for (int j = 0; j < nCellsHeight; ++j)
+    	{
+    		mceldas.push(celda(i,j,cellValue(i,j,freeCells,nCellsWidth,nCellsHeight,mapWidth,mapHeight,obstacles,defenses)));	
+    		
+    	}
+    }
+
+    while(!mceldas.empty() && !colocado){
+    	cactual=mceldas.top();
+        mceldas.pop();
+    	if(factible(cactual.row,cactual.col,nCellsWidth,nCellsHeight,mapWidth,mapHeight,obstacles,defenses,currentDefense)){
+    		(*currentDefense)->position.x = (cactual.row * cellWidth) + cellWidth * 0.5f;
+        	(*currentDefense)->position.y = (cactual.col * cellHeight) + cellHeight * 0.5f;
+        	(*currentDefense)->position.z = 0; 
+            colocado=true;
+    	}
+
+    }
+\end{lstlisting}

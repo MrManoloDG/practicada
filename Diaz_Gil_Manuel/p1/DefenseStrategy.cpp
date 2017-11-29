@@ -73,11 +73,11 @@ float cellValue(int row, int col, bool** freeCells, int nCellsWidth, int nCellsH
     x=row*cellWidth+cellWidth*0.5f;
     y=col*cellHeight+cellHeight*0.5f;
     for (int i = 0; i <= (nCellsWidth/2) ; ++i){
-        if(row==i || row==(i-nCellsWidth+1))valor=valor+i*10;    
+        if(row==i || row==(i-nCellsWidth+1))valor=valor+i*5;    
     }
 
     for (int i = 0; i < (nCellsHeight/2); ++i){
-        if(col==i || col==(i-nCellsHeight))valor=valor+i*10;  
+        if(col==i || col==(i-nCellsHeight))valor=valor+i*5;  
     }
 
     std::list<Object*>::iterator obsts=obstacles.begin();
@@ -101,23 +101,23 @@ float cellValue2(int row, int col, bool** freeCells, int nCellsWidth, int nCells
     x=row*cellWidth+cellWidth*0.5f;
     y=col*cellHeight+cellHeight*0.5f;
     for (int i = 0; i <= (nCellsWidth/2) ; ++i){
-        if(row==i || row==(i-nCellsWidth+1))valor=valor+i*10;    
+        if(row==i || row==(i-nCellsWidth+1))valor=valor+i*2;    
     }
 
     for (int i = 0; i < (nCellsHeight/2); ++i){
-        if(col==i || col==(i-nCellsHeight))valor=valor+i*10;  
+        if(col==i || col==(i-nCellsHeight))valor=valor+i*2;  
     }
 
     std::list<Object*>::iterator obsts=obstacles.begin();
     while(obsts != obstacles.end()){
         distanciapuntos=sqrt(abs(x-(*obsts)->position.x)*abs(x-(*obsts)->position.x) +abs(y-(*obsts)->position.y)*abs(y-(*obsts)->position.y));
-        valor=valor+(((mapWidth+mapHeight)/2)-distanciapuntos);
+        valor=valor+(((mapWidth+mapHeight)/2)-distanciapuntos)/2;
         ++obsts;
     }
 
     std::list<Defense*>::iterator defs=defenses.begin();
     distanciapuntos=sqrt(abs(x-(*defs)->position.x)*abs(x-(*defs)->position.x)+abs(y-(*defs)->position.y)*abs(y-(*defs)->position.y));
-    valor=valor+(((mapWidth+mapHeight)/2)-distanciapuntos);
+    valor=valor+2*(((mapWidth+mapHeight)/2)-distanciapuntos);
     return valor;
 
 }
