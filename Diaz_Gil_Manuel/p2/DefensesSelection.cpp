@@ -11,8 +11,8 @@
 using namespace Asedio;
 
 float valorar(const Defense& d){
-	std::cout<<"Radio: "<<d.range<<" dispersion: "<<d.dispersion<<" Daño: "<<d.damage<<" ataques por segundo: "<<d.attacksPerSecond<<" vida: "<<d.health<<std::endl;
-	return (d.range/30)+d.dispersion+((d.damage*d.attacksPerSecond)/5)+(d.health/500);
+	std::cout<<"Radio: "<<d.range<<" dispersion: "<<d.dispersion<<" Daño: "<<d.damage<<" ataques por segundo: "<<d.attacksPerSecond<<" vida: "<<d.health <<"coste: " <<d.cost<<std::endl;
+	return (d.range/30)*2+d.dispersion+((d.damage*d.attacksPerSecond)/5)*4+(d.health/500)*2+(1-(d.cost/105)*10);
 }
 
 void DEF_LIB_EXPORTED selectDefenses(std::list<Defense*> defenses, unsigned int ases, std::list<int> &selectedIDs
@@ -47,9 +47,9 @@ void DEF_LIB_EXPORTED selectDefenses(std::list<Defense*> defenses, unsigned int 
     		}else{
     			tabla[j][z] = std::max(tabla[j-1][z],(tabla[j-1][z-costes[j]]+valor[i]));
     		}
-    		std::cout<<tabla[j][z]<<" ";
+    		
     	}
-    	std::cout<<""<<std::endl;
+    	
     }
 
 
