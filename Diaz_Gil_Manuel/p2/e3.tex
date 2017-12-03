@@ -1,15 +1,37 @@
 \begin{lstlisting}
-// sustituya este codigo por su respuesta
-void selectDefenses(...) {
+ double tabla[defenses.size()][ases];
+    double valor[defenses.size()];
+    double costes[defenses.size()];
 
-    unsigned int cost = 0;
+
     std::list<Defense*>::iterator it = defenses.begin();
-    while(it != defenses.end()) {
-        if(cost + (*it)->cost <= ases) {
-            selectedIDs.push_back((*it)->id);
-            cost += (*it)->cost;
-        }
-        ++it;
+    int i = 0;
+    for(it = defenses.begin(); it!=defenses.end();++it){
+        valor[i] = valorar(*(*it));
+        costes[i]=(*it)->cost;
+        i++;
     }
-}
+
+    for (int j = 0; j < ases; ++j)
+    {
+        if(j<costes[0]){
+            tabla[0][j] = 0;
+        }else{
+            tabla[0][j] = valor[0];
+        }
+    }
+
+    for (i = 1; i < defenses.size(); i++)
+    {
+        for (int j = 0; j < ases; j++)
+        {
+            if(j < costes[i]){
+                tabla[i][j] = tabla[i-1][j];
+            }else{
+                tabla[i][j] = std::max(tabla[i-1][j],tabla[i-1][j-(int)costes[i]]+valor[i]);
+            }
+            
+        }
+        
+    }
 \end{lstlisting}

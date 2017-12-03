@@ -1,3 +1,5 @@
-$$ f(radio,rango,salud)=(radio+rango)-1+rango^2+3\frac{radio}{salud} $$
 
-Escriba aquí su respuesta al ejercicio 1.
+$$ f(valorar)=(rango/30)*5+dispersion*5+((daño*ataquesPorSegundo)/5)*15+(salud/500)*20$$
+El valor de la defensa se asignna en funcion del rango, el cual se divide por 30 para que quede mas menos alrededor de 1, la dispersion, el dañor multiplicado por los ataques por segundo, para asi obtener el daño por segundo de la torreta, y la salud, divida entre 500 para que este alrededor de 1.
+
+Las multiplicaciones por numeros constantes se dan segun el orden de importancia. De esta manera le damos mas prioridad a la salud y al daño por segundo.

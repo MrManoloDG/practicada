@@ -1,15 +1,18 @@
 \begin{lstlisting}
-// sustituya este codigo por su respuesta
-void selectDefenses(...) {
 
-    unsigned int cost = 0;
-    std::list<Defense*>::iterator it = defenses.begin();
-    while(it != defenses.end()) {
-        if(cost + (*it)->cost <= ases) {
+    it = defenses.begin();
+    int currentases = ases;
+    selectedIDs.push_back((*it)->id);
+    currentases -= (*it)->cost;
+
+    it = defenses.end();
+    for (i = defenses.size()-1; i > 0; --i)
+    {
+        --it;
+        if (tabla[i][currentases]!=tabla[i-1][currentases])
+        {
             selectedIDs.push_back((*it)->id);
-            cost += (*it)->cost;
+            currentases -= (*it)->cost;
         }
-        ++it;
     }
-}
 \end{lstlisting}

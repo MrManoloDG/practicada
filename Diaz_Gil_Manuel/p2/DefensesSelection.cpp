@@ -11,10 +11,8 @@
 using namespace Asedio;
 
 double valorar(const Defense& d){
-    double x= (d.range/30)*10+d.dispersion*12+((d.damage*d.attacksPerSecond)/5)*15+(d.health/500)*5+(1-(d.cost/150))*8;
-    std::cout<<x<<std::endl;
+    double x= (d.range/30)*5+d.dispersion*5+((d.damage*d.attacksPerSecond)/5)*15+(d.health/500)*20;
     return x;
-
 }
 
 void DEF_LIB_EXPORTED selectDefenses(std::list<Defense*> defenses, unsigned int ases, std::list<int> &selectedIDs
@@ -60,7 +58,7 @@ void DEF_LIB_EXPORTED selectDefenses(std::list<Defense*> defenses, unsigned int 
     it = defenses.begin();
     int currentases = ases;
     selectedIDs.push_back((*it)->id);
-    currentases -= (*it)->cost - 1;
+    currentases -= (*it)->cost;
 
     it = defenses.end();
     for (i = defenses.size()-1; i > 0; --i)
