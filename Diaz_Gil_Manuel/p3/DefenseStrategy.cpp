@@ -23,7 +23,10 @@ struct celda
     
 
 };
-bool operator < (const celda& a,const celda& b){return a.valor<b.valor;}    
+bool operator < (const celda& a,const celda& b){return a.valor<b.valor;} 
+bool operator >= (const celda& a,const celda& b){return !(a<b);}
+bool operator > (const celda& a,const celda& b){return b<a;}
+bool operator <= (const celda& a, const celda& b){return !(a>b);}
 
 bool factible(int row,int col,int nCellsWidth, int nCellsHeight, float mapWidth,float mapHeight,std::list<Object*> obstacles,std::list<Defense*> defenses,std::list<Defense*>::iterator current){
     float cellWidth = mapWidth / nCellsWidth;
@@ -73,7 +76,7 @@ float defaultCellValue(int row, int col, bool** freeCells, int nCellsWidth, int 
     return val;
 }
 
-void sinOrdenacion(std::vector<cell>& c){
+void sinOrdenacion(std::vector<celda>& c){
     for(int i=0;i<c.size()-1;++i){
     for(int j=i+1;j<c.size();++j){    
         if(c[i]<c[j]){
@@ -83,8 +86,8 @@ void sinOrdenacion(std::vector<cell>& c){
     }
 }
 
-void ordenacionInsercion(std::vector<cell>& c, int i, int j){
-    cell x;
+void ordenacionInsercion(std::vector<celda>& c, int i, int j){
+    celda x;
     for(int k=i+1;k<j;++k){
         x=c[k];
         while(k>i && x>c[k-1]){
@@ -95,9 +98,9 @@ void ordenacionInsercion(std::vector<cell>& c, int i, int j){
     }
 }
 
-void fusion(std::vector<cell>& c,int i,int k,int j){
+void fusion(std::vector<celda>& c,int i,int k,int j){
     int n = j-i;
-    std::vector<cell> aux;
+    std::vector<celda> aux;
     int iter=i;
     int iter2=k;
     for (int l = 0; l < n; ++l)
@@ -113,11 +116,11 @@ void fusion(std::vector<cell>& c,int i,int k,int j){
     }
     for (int l = 0; l < n; ++l)
     {
-        c[l+i-1]=aux[l];
+        c[l+i]=aux[l];
     }
 }
 
-void ordenacionFusion(std::vector<cell>& c,int i, int j){
+void ordenacionFusion(std::vector<celda>& c,int i, int j){
     int n = j-i;
     if (n<3){
         ordenacionInsercion(c,i,j);
@@ -131,35 +134,104 @@ void ordenacionFusion(std::vector<cell>& c,int i, int j){
 
 }
 
-int pivote(std::vector<cell>& c,int i, int j){
-    
+int pivote(std::vector<celda>& c,int i, int j){
+    int p = i;
+    celda x = c[i];
+    for (int k = i+1; k < j; ++k)
+    {
+        if(c[k]<=x){
+            ++p;
+            std::swap(c[p],c[k]);
+        }
+    }
+    c[i] = c[p];
+    c[p] = x;
+    return p;
 }
+
+void ordenacionRapida(std::vector<celda>& c,int i, int j){
+    int n = j-i;
+    if(n<3){
+        ordenacionInsercion(c,i,j);
+    }else{
+        int p = pivote(c,i,j);
+        ordenacionRapida(c,i,p-1);
+        ordenacionRapida(c,p+1,j);
+    }
+}
+
+void ordenacionMonticulo(std::vector<celda>& c,int i, int j){
+    std::priority_queue<celda> monticulo;
+    for(std::vector<celda>::iterator iter = c.begin(); iter!= c.end(); ++iter){
+        monticulo.push(*iter);
+    }
+    for(std::vector<celda>::iterator iter = c.begin(); iter!= c.end(); ++iter){
+        (*iter) = monticulo.top();
+        monticulo.pop();
+    }
+}
+
 
 void DEF_LIB_EXPORTED placeDefenses3(bool** freeCells, int nCellsWidth, int nCellsHeight, float mapWidth, float mapHeight
               , List<Object*> obstacles, List<Defense*> defenses) {
-
+    float err_abs=0.01,err_rel=0.001;
     float cellWidth = mapWidth / nCellsWidth;
     float cellHeight = mapHeight / nCellsHeight; 
+    List<Defense*>::iterator currentDefense = defenses.begin();
     bool colocado=false;
     celda cactual;
-    std::priority_queue<celda> mceldas;
-
+    std::vector<celda> mceldas;
+    for(int i=0;i<nCellsHeight;i++){
+        for(int j=0;j<nCellsWidth;j++){
+            mceldas.push_back(celda(i, j, defaultCellValue(i, j, freeCells, nCellsWidth, nCellsHeight, mapWidth, mapHeight, obstacles, defenses)));
+    }
+    }
     int maxAttemps = 10000;
+    std::vector<celda> mceldas2;
 	cronometro c;
     long int r = 0;
-    c.activar();
-    do {	
-		List<Defense*>::iterator currentDefense = defenses.begin();
-		while(currentDefense != defenses.end() && maxAttemps > 0) {
+    for (int i = 0; i < 4; ++i)
+    {
+        
+    
+        c.activar();
+        do {
+             
+            mceldas2 = mceldas;
+            switch(i){
+                case 0:
+                    sinOrdenacion(mceldas2);
+                    break;
+                case 1:
+                    ordenacionFusion(mceldas2,0,mceldas2.size());
+                    break;
+                case 2:
+                    ordenacionRapida(mceldas2,0,mceldas2.size());
+                    break;
+                case 3:
+                    ordenacionMonticulo(mceldas2,0,mceldas2.size());
+                    break;
 
-			(*currentDefense)->position.x = ((int)(_RAND2(nCellsWidth))) * cellWidth + cellWidth * 0.5f;
-			(*currentDefense)->position.y = ((int)(_RAND2(nCellsHeight))) * cellHeight + cellHeight * 0.5f;
-			(*currentDefense)->position.z = 0; 
-			++currentDefense;
-		}
-		
-		++r;
-    } while(c.tiempo() < 1.0);
-    c.parar();
-    std::cout << (nCellsWidth * nCellsHeight) << '\t' << c.tiempo() / r << '\t' << c.tiempo()*2 / r << '\t' << c.tiempo()*3 / r << '\t' << c.tiempo()*4 / r << std::endl;
+            }
+            int it = 0;
+    		while(currentDefense != defenses.end()) {
+            colocado=false;
+            while(!mceldas2.empty() && !colocado){
+                cactual=mceldas2[it];
+                ++it;
+                if(factible(cactual.row,cactual.col,nCellsWidth,nCellsHeight,mapWidth,mapHeight,obstacles,defenses,currentDefense)){
+                    (*currentDefense)->position.x = (cactual.row * cellWidth) + cellWidth * 0.5f;
+                    (*currentDefense)->position.y = (cactual.col * cellHeight) + cellHeight * 0.5f;
+                    (*currentDefense)->position.z = 0; 
+                    colocado=true;
+                }
+            }
+            ++currentDefense;
+    		}
+    		
+    		++r;
+        } while(c.tiempo() < (err_abs/err_rel+err_abs));
+        c.parar();
+        std::cout << (nCellsWidth * nCellsHeight) << '\t' << c.tiempo() / r << '\t' << c.tiempo()*2 / r << '\t' << c.tiempo()*3 / r << '\t' << c.tiempo()*4 / r << std::endl;
+    }
 }
