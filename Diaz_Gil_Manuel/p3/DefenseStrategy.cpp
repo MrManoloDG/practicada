@@ -78,23 +78,23 @@ float defaultCellValue(int row, int col, bool** freeCells, int nCellsWidth, int 
 
 void sinOrdenacion(std::vector<celda>& c){
     for(int i=0;i<c.size()-1;++i){
-    for(int j=i+1;j<c.size();++j){    
-        if(c[i]<c[j]){
-        std::swap(c[i],c[j]);
+        for(int j=i+1;j<c.size();++j){    
+            if(c[i]>c[j]){
+            std::swap(c[i],c[j]);
+            }
+            }
         }
-        }
-    }
 }
 
-void ordenacionInsercion(std::vector<celda>& c, int i, int j){
-    celda x;
-    for(int k=i+1;k<j;++k){
-        x=c[k];
-        while(k>i && x>c[k-1]){
-            c[k]=c[k-1];
-            --k;
+void ordenacionInsercion(std::vector<celda>& c, int i, int k){
+    int j;
+    celda aux;
+    for(i = 0;i<k;i++){
+        aux = c[i];
+        for(j = i;j>0 && (aux<c[j-1]);j--){
+                c[j]=c[j-1];
         }
-        c[k]=x;
+        c[j]=aux;
     }
 }
 
@@ -160,15 +160,70 @@ void ordenacionRapida(std::vector<celda>& c,int i, int j){
     }
 }
 
-void ordenacionMonticulo(std::vector<celda>& c,int i, int j){
-    std::priority_queue<celda> monticulo;
-    for(std::vector<celda>::iterator iter = c.begin(); iter!= c.end(); ++iter){
-        monticulo.push(*iter);
+4void ordenacionMonticulo(std::vector<celda>& c,int i, int j){
+    std::priority_queue<celda, std::vector<celda>, std::greater<celda>> monticulo;
+    std::vector<celda> v;
+    for(i=0; i<j;i++){
+        monticulo.push(c[i]);
     }
-    for(std::vector<celda>::iterator iter = c.begin(); iter!= c.end(); ++iter){
-        (*iter) = monticulo.top();
+    for(i=0; i<j;i++){
+        c[i]=monticulo.top();
         monticulo.pop();
     }
+}
+
+bool compruebaOrdenado(std::vector<celda>& c){
+    for (int i = 0; i < c.size()-1; ++i)
+    {
+        if(c[i]>c[i+1]){
+            return false;
+        }
+    }
+    return true;
+}
+
+void pruebaCajanegra(std::vector<celda>& c){
+    std::vector<celda> aux(c);
+    if (compruebaOrdenado(aux))
+    {
+        std::cout<<" El vector esta ordenado"<<std::endl;
+    }else{
+        std::cout<<" El vector no esta ordenado"<<std::endl;
+    }
+
+    sinOrdenacion(aux);
+    if (compruebaOrdenado(aux))
+    {
+        std::cout<<"Sin ordenacion: El vector esta ordenado"<<std::endl;
+    }else{
+        std::cout<<"Sin ordenacion: El vector no esta ordenado"<<std::endl;
+    }
+    aux=c;
+    ordenacionFusion(aux,0,aux.size());
+    if (compruebaOrdenado(aux))
+    {
+        std::cout<<"ordenacionFusion El vector esta ordenado"<<std::endl;
+    }else{
+        std::cout<<"ordenacionFusion El vector no esta ordenado"<<std::endl;
+    }
+    aux=c;
+    ordenacionRapida(aux,0,aux.size());
+    if (compruebaOrdenado(aux))
+    {
+        std::cout<<"ordenacionRapida: El vector esta ordenado"<<std::endl;
+    }else{
+        std::cout<<"ordenacionRapida: El vector no esta ordenado"<<std::endl;
+    }
+    aux=c;
+    ordenacionMonticulo(aux,0,aux.size());
+    if (compruebaOrdenado(aux))
+    {
+        std::cout<<"ordenacionMonticulo: El vector esta ordenado"<<std::endl;
+    }else{
+        std::cout<<"ordenacionMonticulo: El vector no esta ordenado"<<std::endl;
+    }
+    
+
 }
 
 
@@ -189,6 +244,7 @@ void DEF_LIB_EXPORTED placeDefenses3(bool** freeCells, int nCellsWidth, int nCel
     int maxAttemps = 10000;
     std::vector<celda> mceldas2;
 	cronometro c;
+    //pruebaCajanegra(mceldas);
     long int r = 0;
     for (int i = 0; i < 4; ++i)
     {
@@ -196,7 +252,8 @@ void DEF_LIB_EXPORTED placeDefenses3(bool** freeCells, int nCellsWidth, int nCel
     
         c.activar();
         do {
-             
+            List<Defense*>::iterator currentDefense = defenses.begin();
+            bool colocado=false;
             mceldas2 = mceldas;
             switch(i){
                 case 0:
@@ -213,12 +270,12 @@ void DEF_LIB_EXPORTED placeDefenses3(bool** freeCells, int nCellsWidth, int nCel
                     break;
 
             }
-            int it = 0;
+            int it = mceldas2.size()-1;
     		while(currentDefense != defenses.end()) {
             colocado=false;
-            while(!mceldas2.empty() && !colocado){
+            while(!colocado){
                 cactual=mceldas2[it];
-                ++it;
+                --it;
                 if(factible(cactual.row,cactual.col,nCellsWidth,nCellsHeight,mapWidth,mapHeight,obstacles,defenses,currentDefense)){
                     (*currentDefense)->position.x = (cactual.row * cellWidth) + cellWidth * 0.5f;
                     (*currentDefense)->position.y = (cactual.col * cellHeight) + cellHeight * 0.5f;

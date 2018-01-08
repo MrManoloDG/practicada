@@ -1,1 +1,39 @@
-Escriba aquí su respuesta al ejercicio 3.
+\begin{lstlisting}
+void ordenacionInsercion(std::vector<celda>& c, int i, int k){
+    int j;
+    celda aux;
+    for(i = 0;i<k;i++){
+        aux = c[i];
+        for(j = i;j>0 && (aux<c[j-1]);j--){
+                c[j]=c[j-1];
+        }
+        c[j]=aux;
+    }
+}	
+
+int pivote(std::vector<celda>& c,int i, int j){
+    int p = i;
+    celda x = c[i];
+    for (int k = i+1; k < j; ++k)
+    {
+        if(c[k]<=x){
+            ++p;
+            std::swap(c[p],c[k]);
+        }
+    }
+    c[i] = c[p];
+    c[p] = x;
+    return p;
+}
+
+void ordenacionRapida(std::vector<celda>& c,int i, int j){
+    int n = j-i;
+    if(n<3){
+        ordenacionInsercion(c,i,j);
+    }else{
+        int p = pivote(c,i,j);
+        ordenacionRapida(c,i,p-1);
+        ordenacionRapida(c,p+1,j);
+    }
+}
+\end{lstlisting}

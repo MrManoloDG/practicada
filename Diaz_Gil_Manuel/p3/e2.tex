@@ -1,1 +1,49 @@
-Escriba aquí su respuesta al ejercicio 2.
+\begin{lstlisting}
+void ordenacionInsercion(std::vector<celda>& c, int i, int k){
+    int j;
+    celda aux;
+    for(i = 0;i<k;i++){
+        aux = c[i];
+        for(j = i;j>0 && (aux<c[j-1]);j--){
+                c[j]=c[j-1];
+        }
+        c[j]=aux;
+    }
+}
+
+void fusion(std::vector<celda>& c,int i,int k,int j){
+    int n = j-i;
+    std::vector<celda> aux;
+    int iter=i;
+    int iter2=k;
+    for (int l = 0; l < n; ++l)
+    {
+        if(iter<=k && (iter2>j-1 || c[iter]<=c[iter2])){
+            aux.push_back(c[iter]);
+            ++iter;
+        }
+        else{
+            aux.push_back(c[iter2]);
+            ++iter2;
+        }       
+    }
+    for (int l = 0; l < n; ++l)
+    {
+        c[l+i]=aux[l];
+    }
+}
+
+void ordenacionFusion(std::vector<celda>& c,int i, int j){
+    int n = j-i;
+    if (n<3){
+        ordenacionInsercion(c,i,j);
+    }
+    else{
+        int k=j-((j-i)/2);
+        ordenacionFusion(c,i,k);
+        ordenacionFusion(c,k,j);
+        fusion(c,i,k,j);    
+    }
+
+}
+\end{lstlisting}
