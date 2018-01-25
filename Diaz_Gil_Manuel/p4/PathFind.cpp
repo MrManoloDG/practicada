@@ -51,7 +51,7 @@ void DEF_LIB_EXPORTED calculatePath(AStarNode* originNode, AStarNode* targetNode
    
     originNode->G = 0;
     originNode->H = abs((originNode)->position.length() - targetNode->position.length());
-    originNode->F = (originNode)->G + (originNode)->H;
+    originNode->F = (originNode)->G + (originNode)->H +  additionalCost[(int) ((originNode)->position.y / cellsHeight)][(int) ((originNode)->position.x / cellsWidth)];
     opened.push(originNode);
     int maxIter = 100;
     AStarNode* current = originNode;
@@ -68,7 +68,7 @@ void DEF_LIB_EXPORTED calculatePath(AStarNode* originNode, AStarNode* targetNode
                         (*it)->G = current->G + abs((*it)->position.length() - current->position.length());
                         (*it)->H = abs((*it)->position.length() - targetNode->position.length());
 
-                        (*it)->F = (*it)->G + (*it)->H;
+                        (*it)->F = (*it)->G + (*it)->H + additionalCost[(int) ((*it)->position.y / cellsHeight)][(int) ((*it)->position.x / cellsWidth)];
                         opened.push((*it));
                         open.insert((*it));
                     }else{
@@ -76,7 +76,7 @@ void DEF_LIB_EXPORTED calculatePath(AStarNode* originNode, AStarNode* targetNode
                         if((*it)->G > (current->G + min)){
                             (*it)->parent = current;
                             (*it)->G = current->G + min;
-                            (*it)->F = (*it)->G + (*it)->H;
+                            (*it)->F = (*it)->G + (*it)->H + additionalCost[(int) ((*it)->position.y / cellsHeight)][(int) ((*it)->position.x / cellsWidth)];
                         }
                     }
                 }
@@ -84,17 +84,17 @@ void DEF_LIB_EXPORTED calculatePath(AStarNode* originNode, AStarNode* targetNode
 
         }
         closed.insert(current);
-	    
+        
 
        
     }
     
 
     current = targetNode;    
-    path.push_back(current->position);
+    path.push_front(current->position);
     while(current->parent != originNode){
         current = current->parent;
-        path.push_back(current->position);
+        path.push_front(current->position);
     }
     --maxIter;
 
