@@ -1,1 +1,64 @@
-Escriba aquí su respuesta al ejercicio 2.
+\begin{lstlisting}
+    std::priority_queue<AStarNode*> opened;
+    std::set<AStarNode*> closed,open;
+   
+    originNode->G = 0;
+    originNode->H = abs((originNode)->position.length() 
+    - targetNode->position.length());
+
+    originNode->F = (originNode)->G + (originNode)->H 
+    +  additionalCost[(int) ((originNode)->position.y / cellsHeight)]
+    [(int) ((originNode)->position.x / cellsWidth)];
+
+    opened.push(originNode);
+    int maxIter = 100;
+    AStarNode* current = originNode;
+
+    while(current != targetNode && maxIter > 0 and !opened.empty()) { 
+        current = opened.top();
+        opened.pop();
+        float min = INF_F;
+        if(current != targetNode){
+            for (List<AStarNode*>::iterator it=current->adjacents.begin();
+             it != current->adjacents.end(); ++it){
+
+                if(closed.count(*it) == 0){
+                    if(open.count(*it) == 0){
+                        (*it)->parent = current;
+                        (*it)->G = current->G + abs((*it)->position.length()
+                         - current->position.length());
+
+                        (*it)->H = abs((*it)->position.length()
+                         - targetNode->position.length());
+
+                        (*it)->F = (*it)->G + (*it)->H 
+                        + additionalCost[(int) ((*it)->position.y / cellsHeight)]
+                        [(int) ((*it)->position.x / cellsWidth)];
+
+                        opened.push((*it));
+                        open.insert((*it));
+                    }else{
+                        min = abs((*it)->position.length() - current->position.length());
+                        if((*it)->G > (current->G + min)){
+                            (*it)->parent = current;
+                            (*it)->G = current->G + min;
+                            (*it)->F = (*it)->G + (*it)->H 
+                            + additionalCost[(int) ((*it)->position.y / cellsHeight)]
+                            [(int) ((*it)->position.x / cellsWidth)];
+
+                        }
+                    }
+                }
+            }
+
+        }
+        closed.insert(current);   
+    }
+    current = targetNode;    
+    path.push_front(current->position);
+    while(current->parent != originNode){
+        current = current->parent;
+        path.push_front(current->position);
+    }
+    --maxIter;
+\end{lstlisting}
